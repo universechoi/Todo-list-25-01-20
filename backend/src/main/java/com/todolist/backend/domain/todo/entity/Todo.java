@@ -1,52 +1,59 @@
 package com.todolist.backend.domain.todo.entity;
 
-import com.todolist.backend.domain.user.entity.User;
-import com.todolist.backend.global.entity.BaseEntity;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
 
 @Entity
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
-@AllArgsConstructor
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class Todo extends BaseEntity {
+public class Todo {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
-    @Setter(AccessLevel.PRIVATE)
-    @EqualsAndHashCode.Include
-    @Column(name = "todo_id", nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false)
     private Long id;
 
-    @NotBlank(message = "할 일은 필수 항목입니다.")
+    @NotBlank
     @Size(max = 255)
     @Column(nullable = false, length = 255)
     private String todo;
 
-    @Size(max = 500, message = "설명은 500자 이하로 입력해주세요.")
+    @Size(max = 500)
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @FutureOrPresent(message = "마감일은 현재 시점 또는 미래여야 합니다.")
-    @Column(name = "due_date", nullable = false, updatable = false)
-    private LocalDateTime dueDate;
+    @FutureOrPresent
+    private LocalDate dueDate;
 
-    @NotNull(message = "완료 여부를 설정해 주세요.")
-    @Column(name = "is_completed", nullable = false)
-    private Boolean isCompleted = false;
+    @Column(nullable = false)
+    private boolean isCompleted = false;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
+    @NotNull
+    @Column(nullable = false)
+    private Long userId;
+
+    // private -> 객체 생성시 Builder 강제 ->  Builder 는 생성자가 아니라 build() 메서드로 객체를 생성
+    @Builder
+    private Todo(String todo, String description, LocalDate dueDate, Long userId) {
+        this.todo = todo;
+        this.description = description;
+        this.dueDate = dueDate;
+        this.isCompleted = false;
+        this.userId = userId;
+    }
 }
